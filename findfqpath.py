@@ -155,5 +155,6 @@ def find_fq_path(find_file, num_days_valid, scope="Shared"):
         return None
 
 
+#Adobe_file_path = find_fq_path(find_file='AcroRd32.exe', num_days_valid=1,scope="Shared")
 opera_file_path = find_fq_path(find_file='opera.exe', num_days_valid=1,scope="Shared")
 logging.debug('Path for requested file: %s', opera_file_path)
