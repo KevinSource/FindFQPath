@@ -6,7 +6,7 @@ Finds the current the most current version of a file. Once it's found, it will b
 
 This will run slow the FIRST time a new file is requested as it is searching the entire drive. Subsequent usage for the same file will be sub-second.
 
-Install with pip install findfqpath
+Install: pip install findfqpath
 
 Usage:\
 from findfqpath import find_fq_path\
