@@ -73,7 +73,7 @@ def find_fq_path(find_file, num_days_valid, scope="Shared"):
     # * Initialize the search variables
     # * The root path will be used the first time through
     # ********************************************************************************************************
-    search_from_path = 'c:' + os.sep
+    search_from_path = os.path.join(os.environ.get("PROGRAMFILES", "C:\\Program Files"))
     drive, rest = os.path.splitdrive(search_from_path)
     # ********************************************************************************************************
     # * Get the fully qualified path of the file and the date it was stored
@@ -103,7 +103,7 @@ def find_fq_path(find_file, num_days_valid, scope="Shared"):
     # ********************************************************************************************************
     # * Set the wildcard node in the path and append the file name
     # ********************************************************************************************************
-    search_path = os.path.join(search_from_path, '**')
+    search_path = os.path.join(search_from_path + '*', '**')
     search_path = os.path.join(search_path, find_file)
 
     # ********************************************************************************************************
