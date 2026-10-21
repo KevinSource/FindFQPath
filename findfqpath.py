@@ -27,9 +27,16 @@ root_logger.disabled = False
 logging.basicConfig(level=logging.DEBUG, format=' %(asctime)s - %(levelname)s - %(message)s')
 
 # ********************************************************************************************************
-# * Virtual file systems on Linux/macOS that should never be walked
+# * Folders that should never be walked
+# * Windows: WinSxS holds duplicate copies of system files, the Recycle Bin holds deleted ones
+# * Linux/macOS: virtual file systems
 # ********************************************************************************************************
-SKIP_DIRS = {'/proc', '/sys', '/dev', '/run'}
+if sys.platform == 'win32':
+    SKIP_DIRS = {os.path.join(os.environ.get('SYSTEMROOT', r'C:\Windows'), 'WinSxS'),
+                 os.path.join(os.environ.get('SYSTEMDRIVE', 'C:') + os.sep, '$Recycle.Bin')}
+else:
+    SKIP_DIRS = {'/proc', '/sys', '/dev', '/run'}
+SKIP_DIRS = {os.path.normcase(path) for path in SKIP_DIRS}
 
 
 def default_search_dirs() -> List[str]:
@@ -67,7 +74,7 @@ def find_under(search_from_path: str, find_file: str) -> List[str]:
     target = os.path.normcase(find_file)
     found_file_list = []
     for dir_path, dir_names, file_names in os.walk(search_from_path):
-        dir_names[:] = [d for d in dir_names if os.path.join(dir_path, d) not in SKIP_DIRS]
+        dir_names[:] = [d for d in dir_names if os.path.normcase(os.path.join(dir_path, d)) not in SKIP_DIRS]
         found_file_list.extend(os.path.join(dir_path, f) for f in file_names if os.path.normcase(f) == target)
     logging.debug('Matches found for file %s is %d', find_file, len(found_file_list))
     return found_file_list
@@ -126,8 +133,16 @@ def find_fq_path(find_file, num_days_valid, scope="Shared") -> Optional[str]:
             find_file_path_shelf.close()
             return curr_find_file_path
 
+    # ********************************************************************************************************
+    # * Check the PATH first. It's instant and is what the OS itself would run
+    # ********************************************************************************************************
+    which_path = shutil.which(find_file)
+    if which_path:
+        logging.debug('Found on PATH: %s', which_path)
+        found_file_list = [os.path.abspath(which_path)]
+    elif pathkey in find_file_path_shelf:
         # ********************************************************************************************************
-        # * If not, search from two directory levels up from where it was found before, then keep
+        # * Search from two directory levels up from where it was found before, then keep
         # * going up a level until it's found or the top of the drive is reached
         # ********************************************************************************************************
         logging.debug('Entering Search for file: %s', curr_find_file_path)
@@ -140,16 +155,10 @@ def find_fq_path(find_file, num_days_valid, scope="Shared") -> Optional[str]:
             search_from_path = parent_path
     else:
         # ********************************************************************************************************
-        # * First time for this file: check the PATH (except on Windows, where versioned install
-        # * folders are rarely on it), then the usual install folders, then the whole drive
+        # * First time for this file: search the usual install folders, then the whole drive
         # ********************************************************************************************************
-        if sys.platform != 'win32':
-            which_path = shutil.which(find_file)
-            if which_path:
-                found_file_list = [which_path]
-        if not found_file_list:
-            for search_from_path in default_search_dirs():
-                found_file_list.extend(find_under(search_from_path, find_file))
+        for search_from_path in default_search_dirs():
+            found_file_list.extend(find_under(search_from_path, find_file))
         if not found_file_list:
             found_file_list = find_under(filesystem_root(), find_file)
 

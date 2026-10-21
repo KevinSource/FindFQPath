@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "findfqpath"
-version = "1.0.6"
+version = "1.0.7"
 description = "Find the latest installed copy of an executable (e.g. opera.exe) even when updates move it to a new folder, and cache the path."
 readme = "README.md"
 requires-python = ">=3.8"
