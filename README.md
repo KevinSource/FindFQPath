@@ -49,12 +49,14 @@ Returns the full path as a string, or `None` if the file can't be found.
 ## How it works
 
 1. **Saved path:** if the path saved for this file still exists and is newer than `num_days_valid` days, it's returned straight away.
-2. **Re-search:** if the saved path is missing or too old, the search starts two folders above where the file was last found, then moves up one folder at a time. A new version installed next to the old one is usually found quickly.
-3. **First search:** for a file it hasn't seen before, it checks:
-   - your `PATH` (macOS and Linux only);
+2. **PATH:** otherwise it checks your `PATH` first. That's instant and finds anything the OS itself would run, such as `svchost.exe` or `python`.
+3. **Re-search:** if the file isn't on `PATH` and the saved path is missing or too old, the search starts two folders above where the file was last found, then moves up one folder at a time. A new version installed next to the old one is usually found quickly.
+4. **First search:** for a file it hasn't seen before, it checks:
    - the usual install folders: `Program Files`, `Program Files (x86)` and `AppData\Local\Programs` on Windows; `/Applications` and Homebrew on macOS; `/usr/bin`, `/opt`, `/snap/bin` and `~/.local/bin` on Linux;
    - the whole drive, as a last resort.
-4. If several copies are found, the most recently modified one wins.
+
+   Searches skip folders that hold duplicate or deleted copies (`C:\Windows\WinSxS` and the Recycle Bin on Windows) and system folders such as `/proc` on Linux.
+5. If several copies are found, the most recently modified one wins.
 
 The first search for a file can take a while if it has to scan the whole drive. Later calls for the same file are fast.
 

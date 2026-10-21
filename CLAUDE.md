@@ -31,9 +31,10 @@ Running the module directly executes the `__main__` block at the bottom of the f
    - anything else (default `"Shared"`) → `FileShlf` in `platformdirs.user_cache_dir("findfqpath")` (e.g. `%LOCALAPPDATA%\findfqpath\Cache` on Windows).
 2. **Cache keys** are `<find_file>fqpath` (the path) and `<find_file>DateUpdated` (a `datetime`).
 3. **Cache hit**: if the cached path still exists and was stored less than `num_days_valid` days ago, it is returned immediately. `num_days_valid=0` always forces a search.
-4. **Search** (`find_under` uses `os.walk`, skips `/proc`, `/sys`, `/dev`, `/run`, doesn't follow symlinks, and matches names case-insensitively on Windows only):
+4. **Search** (`find_under` uses `os.walk`, prunes `SKIP_DIRS` (`WinSxS` and `$Recycle.Bin` on Windows; `/proc`, `/sys`, `/dev`, `/run` elsewhere), doesn't follow symlinks, and matches names case-insensitively on Windows only):
+   - **Always first**: `shutil.which` on every OS. Its result is made absolute, because on Windows it can return `.\name` for a file in the current directory.
    - **Stale/missing cache entry**: search from two levels above the cached path, then walk up one directory at a time until something is found or the filesystem root is reached.
-   - **First lookup**: on macOS/Linux try `shutil.which` first; then search all of `default_search_dirs()` (per-OS install folders); then fall back to `filesystem_root()` (system drive or `/`). A first-time miss can therefore scan the entire drive and be slow.
+   - **First lookup**: search all of `default_search_dirs()` (per-OS install folders), then fall back to `filesystem_root()` (system drive or `/`). A first-time miss can therefore scan the entire drive and be slow.
 5. Among all matches, the one with the newest mtime (`max(..., key=os.path.getmtime)`) is written back to the shelf and returned; `None` if nothing is found.
 
 Callers pass the OS-specific file name (`opera.exe` on Windows, `opera` on Linux, `Opera` inside the macOS app bundle).
