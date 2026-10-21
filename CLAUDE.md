@@ -6,7 +6,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 A single-module, cross-platform (Windows/macOS/Linux) Python utility (`findfqpath.py`) exposing `find_fq_path(find_file, num_days_valid, scope="Shared")`. It returns the fully qualified path of the most recently modified copy of a file (e.g. `opera.exe`) so callers don't break when an executable moves to a new versioned install folder. Results are cached in a `shelve` file. Published on PyPI as `findfqpath`. The only third-party dependency is `platformdirs`.
 
-Packaging is in `pyproject.toml` (setuptools, single `py-modules` entry); bump `version` there for each PyPI release. There is no test suite or linter config. The untracked `venv/` is broken (built on a Python 3.6 that is no longer installed); create a fresh one.
+Packaging is in `pyproject.toml` (setuptools, single `py-modules` entry); bump `version` there for each PyPI release. There is no test suite or linter config. The untracked `venv/` (Python 3.9) has the project installed in editable mode (`pip install -e .`) plus `build` and `twine`; use `venv\Scripts\python.exe`.
 
 ## Running
 
