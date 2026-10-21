@@ -7,6 +7,7 @@
 Find the fully qualified path of the most recent installed copy of a file, such as a browser executable, even when updates keep moving it to a new versioned folder.
 
 Many tools need the full path to an executable. Selenium's `binary_location` is a common example. Programs like Opera install each update into a new folder, so a hard-coded path breaks every time the program updates. `find_fq_path` searches for the file once, remembers where it was, and returns that path on later calls in well under a second. When the saved path goes missing or gets older than you allow, it searches again and picks the newest copy.
+This will run slow the FIRST time a new file is requested as it may search the entire drive. However, it will look through the Program* directories before searching the entire drive. Subsequent usage for the same file will be sub-second.
 
 Works on Windows, macOS and Linux.
 
