@@ -1,0 +1,18 @@
+# IDE
+.idea/
+.vscode/
+
+# Virtual environments
+venv/
+.venv/
+
+# Python build/bytecode
+__pycache__/
+*.py[cod]
+build/
+dist/
+*.egg-info/
+
+# findfqpath cache files (scope="Local" writes these next to the script)
+FileShlf
+FileShlf.*
